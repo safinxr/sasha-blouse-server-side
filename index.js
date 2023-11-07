@@ -73,11 +73,11 @@ async function run() {
 
         })
 
-        app.get('/singlefood', async(req, res)=>{
-            try{
+        app.get('/singlefood', async (req, res) => {
+            try {
                 const id = req.query.id;
                 const result = await allFoodItems
-                .findOne({_id: new ObjectId(id)})
+                    .findOne({ _id: new ObjectId(id) })
                 res.send(result)
             }
             catch (err) {
@@ -86,15 +86,30 @@ async function run() {
             }
         })
 
+        app.post('/addfood', async (req, res) => {
+            try {
+                const data = req.body
+                const result = await allFoodItems
+                .insertOne(data);
+                res.send(data);
+
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+
+        })
+
         // Top 8 Dishes========================
         app.get('/topdishes', async (req, res) => {
             try {
-                
+
                 const topDishes = await allFoodItems
-                .find()
-                    .sort({ordered: -1 })
-                .limit(8)
-                .toArray()
+                    .find()
+                    .sort({ ordered: -1 })
+                    .limit(8)
+                    .toArray()
 
                 res.send(topDishes)
             } catch (err) {
