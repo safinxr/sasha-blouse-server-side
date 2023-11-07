@@ -35,40 +35,79 @@ async function run() {
         //     console.log(result);
         // }
         // alu()
+
+
         // All Food Items==================
         app.get('/allfooditems', async (req, res) => {
-            const page = parseInt(req.query.page) || 1;
-            const perPage = 6;
-            const skip = (page - 1) * perPage;
-            const count = await allFoodItems.estimatedDocumentCount()
-            const result = await allFoodItems
-                .find()
-                .skip(skip)
-                .limit(perPage)
-                .toArray()
-            res.send({count, result})
+            try {
+                const page = parseInt(req.query.page) || 1;
+                const perPage = 9;
+                const skip = (page - 1) * perPage;
+                const count = await allFoodItems.estimatedDocumentCount()
+                const result = await allFoodItems
+                    .find()
+                    .skip(skip)
+                    .limit(perPage)
+                    .toArray()
+                res.send({ count, result })
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+
         })
 
         app.get('/searchfood', async (req, res) => {
-              const name = req.query.name;
-            const result = await allFoodItems
-                .find({ food_name: { $regex: name } })
-                .toArray()
-            res.send(result);
+            try {
+                const name = req.query.name;
+                const result = await allFoodItems
+                    .find({ food_name: { $regex: name } })
+                    .toArray()
+                res.send(result);
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+
         })
+
+        // Top 8 Dishes========================
+        app.get('/topdishes', async (req, res) => {
+            try {
+                
+                const topDishes = await allFoodItems
+                .find()
+                    .sort({ordered: -1 })
+                .limit(5)
+                .toArray()
+
+                res.send(topDishes)
+            } catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching ');
+            }
+        });
 
         // All Users========================
         app.post('/allusers', async (req, res) => {
-            const userData = req.body
-            const resultOne = await allUsers
-                .find({ email: userData.email })
-                .toArray()
-            if (resultOne.length > 0) {
-                res.send("done")
+            try {
+                const userData = req.body
+                const resultOne = await allUsers
+                    .find({ email: userData.email })
+                    .toArray()
+                if (resultOne.length > 0) {
+                    res.send("done")
+                }
+                else {
+                    const resultTwo = await allUsers.insertOne(userData);
+                    res.send(resultTwo);
+                }
             }
-            else {
-                const resultTwo = await allUsers.insertOne(userData);
-                res.send(resultTwo);
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
             }
 
         })
