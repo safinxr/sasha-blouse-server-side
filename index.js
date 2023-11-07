@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors')
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000
 
@@ -73,6 +73,19 @@ async function run() {
 
         })
 
+        app.get('/singlefood', async(req, res)=>{
+            try{
+                const id = req.query.id;
+                const result = await allFoodItems
+                .findOne({_id: new ObjectId(id)})
+                res.send(result)
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+        })
+
         // Top 8 Dishes========================
         app.get('/topdishes', async (req, res) => {
             try {
@@ -80,7 +93,7 @@ async function run() {
                 const topDishes = await allFoodItems
                 .find()
                     .sort({ordered: -1 })
-                .limit(5)
+                .limit(8)
                 .toArray()
 
                 res.send(topDishes)
