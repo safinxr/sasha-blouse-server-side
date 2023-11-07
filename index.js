@@ -86,6 +86,21 @@ async function run() {
             }
         })
 
+
+        app.get('/myaddedfood', async (req, res) => {
+            try {
+                const email = req.query.email;
+                const result = await allFoodItems
+                    .find({ email: email })
+                    .toArray()
+                res.send(result)
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+        })
+
         app.post('/addfood', async (req, res) => {
             try {
                 const data = req.body
