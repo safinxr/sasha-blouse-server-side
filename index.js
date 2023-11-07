@@ -26,7 +26,14 @@ async function run() {
         await client.connect();
 
         const allUsers = client.db("sashaDB").collection("allUsers");
+        const allFoodItems = client.db("sashaDB").collection("allFoodItems");
 
+        // All Food Items==================
+        app.get('/allfooditems', async (req, res)=>{
+            const result = await allFoodItems
+            .find().toArray()
+            res.send(result)
+        })
 
         // All Users========================
         app.post('/allusers', async (req, res) => {
