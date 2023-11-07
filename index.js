@@ -38,11 +38,9 @@ async function run() {
         // All Food Items==================
         app.get('/allfooditems', async (req, res) => {
             const page = parseInt(req.query.page) || 1;
-            const perPage = 9;
+            const perPage = 6;
             const skip = (page - 1) * perPage;
-
             const count = await allFoodItems.estimatedDocumentCount()
-
             const result = await allFoodItems
                 .find()
                 .skip(skip)
@@ -51,9 +49,8 @@ async function run() {
             res.send({count, result})
         })
 
-        app.get('/searchfood/:name', async (req, res) => {
-              const name = req.params.name;
-            console.log(name);
+        app.get('/searchfood', async (req, res) => {
+              const name = req.query.name;
             const result = await allFoodItems
                 .find({ food_name: { $regex: name } })
                 .toArray()
