@@ -28,11 +28,36 @@ async function run() {
         const allUsers = client.db("sashaDB").collection("allUsers");
         const allFoodItems = client.db("sashaDB").collection("allFoodItems");
 
+        // const alu = async()=>{
+        //     const result = await allFoodItems
+        //         .find({ food_name: { $regex: "bbq" }})
+        //         .toArray()
+        //     console.log(result);
+        // }
+        // alu()
         // All Food Items==================
-        app.get('/allfooditems', async (req, res)=>{
+        app.get('/allfooditems', async (req, res) => {
+            const page = parseInt(req.query.page) || 1;
+            const perPage = 9;
+            const skip = (page - 1) * perPage;
+
+            const count = await allFoodItems.estimatedDocumentCount()
+
             const result = await allFoodItems
-            .find().toArray()
-            res.send(result)
+                .find()
+                .skip(skip)
+                .limit(perPage)
+                .toArray()
+            res.send({count, result})
+        })
+
+        app.get('/searchfood/:name', async (req, res) => {
+              const name = req.params.name;
+            console.log(name);
+            const result = await allFoodItems
+                .find({ food_name: { $regex: name } })
+                .toArray()
+            res.send(result);
         })
 
         // All Users========================
