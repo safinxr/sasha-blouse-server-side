@@ -27,6 +27,7 @@ async function run() {
 
         const allUsers = client.db("sashaDB").collection("allUsers");
         const allFoodItems = client.db("sashaDB").collection("allFoodItems");
+        const buyingDB = client.db("sashaDB").collection("buyingDB");
 
         // const alu = async()=>{
         //     const result = await allFoodItems
@@ -105,7 +106,7 @@ async function run() {
             try {
                 const data = req.body
                 const result = await allFoodItems
-                .insertOne(data);
+                    .insertOne(data);
                 res.send(result);
 
             }
@@ -119,7 +120,7 @@ async function run() {
             try {
                 const id = req.query.id
                 const result = await allFoodItems
-                .deleteOne({_id: new ObjectId(id)})
+                    .deleteOne({ _id: new ObjectId(id) })
                 res.send(result);
 
             }
@@ -134,12 +135,12 @@ async function run() {
             try {
                 const data = req.body
                 const id = req.query.id
-                const filter = {_id: new ObjectId(id)}
+                const filter = { _id: new ObjectId(id) }
                 const updateDoc = {
                     $set: data
                 };
                 const result = await allFoodItems
-                .updateOne(filter, updateDoc)
+                    .updateOne(filter, updateDoc)
                 res.send(result);
 
             }
@@ -149,6 +150,8 @@ async function run() {
             }
 
         })
+
+        
 
         // Top 8 Dishes========================
         app.get('/topdishes', async (req, res) => {
@@ -188,6 +191,38 @@ async function run() {
             }
 
         })
+
+
+        // Buying data============
+        app.post('/buyingdata', async (req, res) => {
+            try {
+                const newQty = req.query.newqty;
+                const data = req.body
+                const qty = data.qty;
+                const id = data.foodId;
+                const filter = { _id: new ObjectId(id) }
+
+                const result = await buyingDB.insertOne(data);
+
+                const updateDoc = {
+                    $set: {
+                        quantity: newQty
+                    },
+                };
+
+                const resultTwo = await allFoodItems
+                    .updateOne(filter, updateDoc)
+
+                res.send({ resultTwo, result });
+
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+        })
+
+
 
 
 
