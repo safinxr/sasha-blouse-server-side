@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
 
         const allUsers = client.db("sashaDB").collection("allUsers");
         const allFoodItems = client.db("sashaDB").collection("allFoodItems");
@@ -244,7 +244,7 @@ async function run() {
 
 
 
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Sasha is eating mango ✅✅✅✅✅✅✅✅✅");
     } finally {
 
