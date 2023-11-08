@@ -193,20 +193,23 @@ async function run() {
         })
 
 
-        // Buying data============
+        // BuyingDB==========================
         app.post('/buyingdata', async (req, res) => {
             try {
                 const newQty = req.query.newqty;
+                const od = parseInt(req.query.od)
                 const data = req.body
                 const qty = data.qty;
                 const id = data.foodId;
+                const newOd = od+ qty;
                 const filter = { _id: new ObjectId(id) }
 
                 const result = await buyingDB.insertOne(data);
 
                 const updateDoc = {
                     $set: {
-                        quantity: newQty
+                        quantity: newQty, 
+                        ordered: newOd
                     },
                 };
 
@@ -215,6 +218,21 @@ async function run() {
 
                 res.send({ resultTwo, result });
 
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+        })
+
+
+        app.get('/myordered', async(req, res)=>{
+            try{
+                const userEmail = req.query.email;
+                const result = await buyingDB
+                    .find({ email: userEmail })
+                    .toArray()
+                res.send(result)
             }
             catch (err) {
                 console.error(err);
