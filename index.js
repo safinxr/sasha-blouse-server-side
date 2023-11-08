@@ -116,6 +116,26 @@ async function run() {
 
         })
 
+        app.put('/updatefood', async (req, res) => {
+            try {
+                const data = req.body
+                const id = req.query.id
+                const filter = {_id: new ObjectId(id)}
+                const updateDoc = {
+                    $set: data
+                };
+                const result = await allFoodItems
+                .updateOne(filter, updateDoc)
+                res.send(result);
+
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+
+        })
+
         // Top 8 Dishes========================
         app.get('/topdishes', async (req, res) => {
             try {
