@@ -106,7 +106,21 @@ async function run() {
                 const data = req.body
                 const result = await allFoodItems
                 .insertOne(data);
-                res.send(data);
+                res.send(result);
+
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).send('An error occurred while fetching');
+            }
+
+        })
+        app.delete('/deletefood', async (req, res) => {
+            try {
+                const id = req.query.id
+                const result = await allFoodItems
+                .deleteOne({_id: new ObjectId(id)})
+                res.send(result);
 
             }
             catch (err) {
