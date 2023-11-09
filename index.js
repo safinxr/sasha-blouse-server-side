@@ -1,15 +1,43 @@
 const express = require('express');
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
+
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000
 
-// Middleware
-app.use(cors())
+// Middleware===============
+app.use(cors({
+    origin: [
+        'https://sasha-blouse.web.app',
+        'https://sasha-blouse.firebaseapp.com'
+    ],
+    credentials: true
+}))
 app.use(express.json())
+app.use(cookieParser())
 
 
+
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token
+    if (!token) {
+        return res.status(401).send({ Error: "unauthorized" })
+    }
+
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decode) => {
+        if (err) {
+            return res.status(401).send({ message: "token decode Error" })
+        }
+        req.user = decode.email
+    })
+    next()
+}
+
+
+// MONGODB START============================
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wywsbgq.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
     serverApi: {
@@ -38,7 +66,7 @@ async function run() {
         // alu()
 
 
-        // All Food Items==================
+        // All Food Items 🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖
         app.get('/allfooditems', async (req, res) => {
             try {
                 const page = parseInt(req.query.page) || 1;
@@ -88,9 +116,13 @@ async function run() {
         })
 
 
-        app.get('/myaddedfood', async (req, res) => {
+        app.get('/myaddedfood', verifyToken, async (req, res) => {
             try {
+                const tokenUser = req.user
                 const email = req.query.email;
+                if(tokenUser !== email){
+                    return res.send("unauthorized user")
+                }
                 const result = await allFoodItems
                     .find({ email: email })
                     .toArray()
@@ -153,7 +185,7 @@ async function run() {
 
         
 
-        // Top 8 Dishes========================
+        // Top 8 Dishes 🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖
         app.get('/topdishes', async (req, res) => {
             try {
 
@@ -170,7 +202,7 @@ async function run() {
             }
         });
 
-        // All Users========================
+        // All Users 🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖
         app.post('/allusers', async (req, res) => {
             try {
                 const userData = req.body
@@ -193,7 +225,7 @@ async function run() {
         })
 
 
-        // BuyingDB==========================
+        // BuyingDB 🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖🔖
         app.post('/buyingdata', async (req, res) => {
             try {
                 const newQty = req.query.newqty;
@@ -226,9 +258,14 @@ async function run() {
         })
 
 
-        app.get('/myordered', async(req, res)=>{
+        app.get('/myordered', verifyToken, async(req, res)=>{
             try{
+                const tokenUser = req.user
                 const userEmail = req.query.email;
+                if (tokenUser !== userEmail) {
+                    return res.send("unauthorized user")
+                }
+                
                 const result = await buyingDB
                     .find({ email: userEmail })
                     .toArray()
@@ -240,7 +277,25 @@ async function run() {
             }
         })
 
+        // JWT🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐🔐
+        app.post('/jwt', async (req, res) => {
+            const user = req.body
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+            res
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'none'
+                })
+                .send({ success: true })
+        })
 
+        app.post('/logout', async (req, res) => {
+
+            res
+                .clearCookie('token', { maxAge: 0 })
+                .send({ remove: true })
+        })
 
 
 
